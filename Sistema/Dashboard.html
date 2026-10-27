@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Runner Log | Painel Administrativo</title>
+
+    <!-- Fonte -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- Biblioteca de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ======================================
+           CONFIGURAÇÕES GERAIS
+        ====================================== */
+
+        :root {
+            --azul: #16294A;
+            --azul-hover: #223B65;
+            --azul-claro: #31578B;
+            --amarelo: #F4BD35;
+
+            --fundo: #F4F6FA;
+            --branco: #FFFFFF;
+            --texto: #252B35;
+            --cinza: #8B95A5;
+            --borda: #E9EDF3;
+
+            --verde: #37A987;
+            --vermelho: #D66B59;
+            --roxo: #6C5CE7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #EAEDF3;
+            color: var(--texto);
+            font-size: 13px;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ======================================
+           ESTRUTURA PRINCIPAL
+        ====================================== */
+
+        .app {
+            display: flex;
+            width: min(1450px, calc(100% - 48px));
+            min-height: 850px;
+            margin: 40px auto;
+            background: var(--fundo);
+            box-shadow: 0 20px 60px rgba(22, 41, 74, 0.08);
+            overflow: hidden;
+        }
+
+        /* ======================================
+           MENU LATERAL
+        ====================================== */
+
+        .sidebar {
+            width: 225px;
+            flex-shrink: 0;
+            background: var(--azul);
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+
+            min-height: 850px;
+            transition: width 0.25s ease;
+        }
+
+        .sidebar-header {
+            height: 78px;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+
+            background: var(--amarelo);
+            color: var(--azul);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 20px;
+            font-weight: 800;
+            font-style: italic;
+        }
+
+        .brand-name {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name span {
+            color: var(--amarelo);
+        }
+
+        .brand-subtitle {
+            margin-top: 3px;
+            font-size: 10px;
+            color: #B9C6DA;
+        }
+
+        .menu-section {
+            padding: 23px 0 17px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        }
+
+        .menu-label {
+            padding: 0 25px;
+            margin-bottom: 13px;
+
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            color: #9EADC5;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            padding: 12px 25px;
+            margin: 3px 0;
+
+            color: #B8C5DA;
+            font-size: 12px;
+
+            border-left: 3px solid transparent;
+            transition: 0.2s;
+        }
+
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: white;
+        }
+
+        .menu-link.active {
+            background: rgba(255, 255, 255, 0.10);
+            color: white;
+            border-left-color: var(--amarelo);
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .menu-badge {
+            margin-left: auto;
+            background: var(--amarelo);
+            color: var(--azul);
+
+            font-size: 9px;
+            font-weight: 800;
+
+            padding: 4px 6px;
+            border-radius: 6px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 20px 15px;
+        }
+
+        .support-card {
+            padding: 18px 14px;
+            text-align: center;
+
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 13px;
+        }
+
+        .support-icon {
+            width: 42px;
+            height: 42px;
+            margin: 0 auto 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(244, 189, 53, 0.14);
+            color: var(--amarelo);
+
+            border-radius: 12px;
+            font-size: 22px;
+        }
+
+        .support-card h3 {
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .support-card p {
+            color: #BAC6D8;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .support-button {
+            width: 100%;
+            margin-top: 14px;
+            padding: 10px;
+
+            background: var(--amarelo);
+            color: var(--azul);
+
+            border: none;
+            border-radius: 7px;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* ======================================
+           CONTEÚDO
+        ====================================== */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ======================================
+           BARRA SUPERIOR
+        ====================================== */
+
+        .topbar {
+            height: 78px;
+            background: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+            padding: 0 35px;
+
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-icon {
+            font-size: 21px;
+            color: #8C96A5;
+        }
+
+        .search input {
+            width: 100%;
+            border: none;
+            outline: none;
+
+            font-size: 12px;
+            color: var(--azul);
+            background: transparent;
+        }
+
+        .search input::placeholder {
+            color: #9BA4B1;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 19px;
+        }
+
+        .user-name {
+            font-size: 11px;
+            color: #697487;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+            background: #E5EBF4;
+            color: var(--azul);
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .notification-button {
+            position: relative;
+            background: transparent;
+            border: none;
+
+            font-size: 21px;
+            color: var(--azul);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 1px;
+            right: 0;
+
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+
+            background: var(--amarelo);
+            border: 1px solid white;
+        }
+
+        /* ======================================
+           ÁREA DO DASHBOARD
+        ====================================== */
+
+        .content {
+            padding: 32px 35px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+            margin-bottom: 26px;
+        }
+
+        .page-heading h1 {
+            font-size: 27px;
+            letter-spacing: -1px;
+            font-weight: 700;
+        }
+
+        .page-heading p {
+            color: var(--cinza);
+            font-size: 11px;
+            margin-top: 7px;
+        }
+
+        .period-select {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+
+            padding: 11px 13px;
+            color: #4D5869;
+
+            font-size: 11px;
+            outline: none;
+        }
+
+        /* ======================================
+           GRADE DE INDICADORES
+        ====================================== */
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #F0F2F6;
+            border-radius: 10px;
+
+            padding: 22px 17px 20px;
+            min-height: 185px;
+
+            text-align: center;
+
+            box-shadow: 0 5px 20px rgba(22, 41, 74, 0.025);
+
+            position: relative;
+        }
+
+        .kpi-more {
+            position: absolute;
+            top: 13px;
+            right: 15px;
+
+            background: none;
+            border: none;
+
+            color: #A5ADBA;
+            font-size: 19px;
+        }
+
+        .kpi-icon {
+            width: 47px;
+            height: 47px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin: 0 auto 15px;
+            border-radius: 50%;
+
+            font-size: 21px;
+        }
+
+        .icon-blue {
+            background: #E7F3FB;
+            color: #3D9BC9;
+        }
+
+        .icon-yellow {
+            background: #FFF4D8;
+            color: #B58A16;
+        }
+
+        .icon-green {
+            background: #E3F5EE;
+            color: #39A786;
+        }
+
+        .icon-purple {
+            background: #EFECFC;
+            color: #7664C6;
+        }
+
+        .kpi-value {
+            font-size: 29px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .kpi-label {
+            color: var(--cinza);
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        .kpi-change {
+            margin-top: 17px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .positive {
+            color: var(--verde);
+        }
+
+        .negative {
+            color: var(--vermelho);
+        }
+
+        .neutral {
+            color: #A0A7B3;
+        }
+
+        /* ======================================
+           CARDS INFERIORES
+        ====================================== */
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1.03fr 1.03fr 1fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #F0F2F6;
+            border-radius: 10px;
+
+            padding: 24px 23px;
+
+            min-width: 0;
+            min-height: 355px;
+
+            box-shadow: 0 5px 20px rgba(22, 41, 74, 0.025);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .card-header h2 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .card-menu {
+            background: transparent;
+            border: none;
+
+            font-size: 19px;
+            color: #A4ACB8;
+        }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 205px;
+        }
+
+        /* ======================================
+           LEGENDA
+        ====================================== */
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            border: 1px solid #E8EBF0;
+            border-radius: 6px;
+
+            padding: 8px 9px;
+            font-size: 10px;
+            color: #5B6573;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ======================================
+           CARTÃO DE DESTAQUE
+        ====================================== */
+
+        .highlight-card {
+            position: relative;
+            overflow: hidden;
+
+            background: var(--azul);
+            color: white;
+
+            border-radius: 10px;
+            padding: 28px 24px;
+
+            min-height: 355px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .highlight-top {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .help-button {
+            width: 22px;
+            height: 22px;
+
+            border: 1px solid #7183A1;
+            background: transparent;
+            color: #D9E1EE;
+
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        .highlight-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .highlight-content h2 {
+            font-size: 23px;
+            line-height: 1.35;
+            letter-spacing: -0.6px;
+        }
+
+        .highlight-content p {
+            margin-top: 12px;
+            color: #C0CCDF;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .highlight-button {
+            margin-top: 18px;
+            padding: 11px 21px;
+
+            border: none;
+            border-radius: 7px;
+
+            background: white;
+            color: var(--azul);
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .highlight-button:hover {
+            background: var(--amarelo);
+        }
+
+        .decorations {
+            position: absolute;
+            bottom: -15px;
+            left: -5px;
+            right: -5px;
+            height: 150px;
+
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+
+            transform: skewY(-10deg);
+            opacity: 0.95;
+        }
+
+        .decor-block {
+            width: 19%;
+            height: 65px;
+            background: #31578B;
+        }
+
+        .decor-block:nth-child(1) {
+            height: 115px;
+            background: #2F9DDF;
+        }
+
+        .decor-block:nth-child(2) {
+            height: 70px;
+            background: #284B7B;
+        }
+
+        .decor-block:nth-child(3) {
+            height: 100px;
+            background: #6459D7;
+        }
+
+        .decor-block:nth-child(4) {
+            height: 125px;
+            background: #329DE3;
+        }
+
+        .decor-block:nth-child(5) {
+            height: 80px;
+            background: #5D55C8;
+        }
+
+        /* ======================================
+           ALERTA DE DOCUMENTAÇÃO
+        ====================================== */
+
+        .alert-strip {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            margin-top: 22px;
+            padding: 15px 18px;
+
+            border: 1px solid #F1E4C4;
+            border-radius: 9px;
+
+            background: #FFF9EB;
+        }
+
+        .alert-symbol {
+            width: 35px;
+            height: 35px;
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            background: #FFF0C8;
+            color: #A7780B;
+
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .alert-text {
+            flex: 1;
+        }
+
+        .alert-text h3 {
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .alert-text p {
+            font-size: 10px;
+            color: #887C61;
+            line-height: 1.5;
+        }
+
+        .alert-button {
+            padding: 9px 12px;
+            border: 1px solid #E8D6A6;
+            border-radius: 7px;
+
+            background: white;
+            color: #806315;
+
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ======================================
+           MENSAGENS
+        ====================================== */
+
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+
+            max-width: 350px;
+
+            padding: 15px 20px;
+
+            border-radius: 10px;
+            background: var(--azul);
+            color: white;
+
+            box-shadow: 0 10px 30px rgba(22, 41, 74, 0.2);
+
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+
+            transition: 0.25s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ======================================
+           RESPONSIVIDADE
+        ====================================== */
+
+        @media (max-width: 1200px) {
+            .app {
+                width: calc(100% - 24px);
+                margin: 12px auto;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                padding: 25px 22px;
+            }
+
+            .topbar {
+                padding: 0 22px;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .highlight-card {
+                grid-column: 1 / -1;
+                min-height: 290px;
+            }
+
+            .decorations {
+                height: 100px;
+            }
+
+            .kpi-grid {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .app {
+                display: block;
+                width: 100%;
+                margin: 0;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .sidebar-header {
+                height: 65px;
+            }
+
+            .menu-section {
+                display: flex;
+                gap: 5px;
+
+                padding: 10px;
+                overflow-x: auto;
+            }
+
+            .menu-label {
+                display: none;
+            }
+
+            .menu-link {
+                flex-direction: column;
+                justify-content: center;
+
+                gap: 5px;
+                padding: 10px 12px;
+                margin: 0;
+
+                border-left: none;
+                border-bottom: 2px solid transparent;
+
+                font-size: 10px;
+                white-space: nowrap;
+            }
+
+            .menu-link.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--amarelo);
+            }
+
+            .menu-badge,
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .topbar {
+                height: 62px;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .content {
+                padding: 24px 18px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .highlight-card {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 20px 12px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .period-select {
+                width: 100%;
+            }
+
+            .kpi-grid {
+                gap: 10px;
+            }
+
+            .kpi-card {
+                padding: 20px 10px;
+                min-height: 175px;
+            }
+
+            .kpi-value {
+                font-size: 25px;
+            }
+
+            .kpi-label {
+                font-size: 10px;
+            }
+
+            .card {
+                padding: 19px 15px;
+            }
+
+            .chart-box {
+                height: 190px;
+            }
+
+            .legend-item {
+                font-size: 9px;
+                padding: 7px;
+            }
+
+            .alert-strip {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .alert-text {
+                min-width: 180px;
+            }
+
+            .alert-button {
+                margin-left: 48px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ==================================
+         MENU LATERAL
+    =================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+
+            <a href="#dashboard" class="brand">
+
+                <div class="brand-icon">R</div>
+
+                <div>
+                    <div class="brand-name">
+                        Runner <span>Log</span>
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Microtransportadora
+                    </div>
+                </div>
+
+            </a>
+
+        </div>
+
+        <nav>
+
+            <div class="menu-section">
+
+                <div class="menu-label">PRINCIPAL</div>
+
+                <a href="#dashboard" class="menu-link active">
+                    <span class="menu-icon">◉</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="#solicitacoes" class="menu-link">
+                    <span class="menu-icon">✉</span>
+                    <span>Solicitações</span>
+                    <span class="menu-badge">4</span>
+                </a>
+
+                <a href="#tarefas" class="menu-link">
+                    <span class="menu-icon">✓</span>
+                    <span>Tarefas</span>
+                </a>
+
+                <a href="#motoristas" class="menu-link">
+                    <span class="menu-icon">♙</span>
+                    <span>Motoristas</span>
+                </a>
+
+                <a href="#historico" class="menu-link">
+                    <span class="menu-icon">◷</span>
+                    <span>Histórico</span>
+                </a>
+
+            </div>
+
+            <div class="menu-section">
+
+                <div class="menu-label">GESTÃO</div>
+
+                <a href="#veiculos" class="menu-link">
+                    <span class="menu-icon">▣</span>
+                    <span>Veículos</span>
+                </a>
+
+                <a href="#documentos" class="menu-link">
+                    <span class="menu-icon">▤</span>
+                    <span>Documentos</span>
+                </a>
+
+                <a href="#relatorios" class="menu-link">
+                    <span class="menu-icon">▥</span>
+                    <span>Relatórios</span>
+                </a>
+
+                <a href="#configuracoes" class="menu-link">
+                    <span class="menu-icon">⚙</span>
+                    <span>Configurações</span>
+                </a>
+
+            </div>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="support-card">
+
+                <div class="support-icon">✦</div>
+
+                <h3>Runner Log</h3>
+
+                <p>
+                    Agilidade que conecta destinos.
+                    <br>
+                    Gerencie sua operação.
+                </p>
+
+                <button class="support-button" id="supportButton">
+                    Central de suporte
+                </button>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ==================================
+         CONTEÚDO PRINCIPAL
+    =================================== -->
+
+    <main class="main" id="dashboard">
+
+        <!-- BARRA SUPERIOR -->
+
+        <header class="topbar">
+
+            <label class="search">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    type="search"
+                    id="globalSearch"
+                    placeholder="Pesquisar no painel..."
+                    aria-label="Pesquisar no painel"
+                >
+
+            </label>
+
+            <div class="topbar-right">
+
+                <span class="user-name">
+                    Administradora
+                </span>
+
+                <div class="avatar" title="Perfil da administradora">
+                    G
+                </div>
+
+                <button
+                    class="notification-button"
+                    id="notificationButton"
+                    aria-label="Notificações"
+                >
+                    ♧
+                    <span class="notification-dot"></span>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ÁREA DE CONTEÚDO -->
+
+        <div class="content">
+
+            <!-- TÍTULO -->
+
+            <section class="page-heading">
+
+                <div>
+                    <h1>Visão geral</h1>
+
+                    <p>
+                        Acompanhe os principais indicadores da Runner Log.
+                    </p>
+                </div>
+
+                <select class="period-select" id="periodSelect">
+                    <option value="30">Últimos 30 dias</option>
+                    <option value="7">Últimos 7 dias</option>
+                    <option value="90">Últimos 90 dias</option>
+                </select>
+
+            </section>
+
+
+            <!-- ==================================
+                 INDICADORES PRINCIPAIS
+            =================================== -->
+
+            <section class="kpi-grid">
+
+                <!-- ENTREGAS -->
+
+                <article class="kpi-card">
+
+                    <button class="kpi-more" aria-label="Mais opções">
+                        ···
+                    </button>
+
+                    <div class="kpi-icon icon-blue">
+                        ⇄
+                    </div>
+
+                    <div class="kpi-value" id="requestsValue">
+                        238
+                    </div>
+
+                    <div class="kpi-label">
+                        Entregas registradas
+                    </div>
+
+                    <div class="kpi-change positive">
+                        ↗ 4,7%
+                    </div>
+
+                </article>
+
+
+                <!-- FATURAMENTO -->
+
+                <article class="kpi-card">
+
+                    <button class="kpi-more" aria-label="Mais opções">
+                        ···
+                    </button>
+
+                    <div class="kpi-icon icon-yellow">
+                        R$
+                    </div>
+
+                    <div class="kpi-value" style="font-size:25px">
+                        R$ 142 mil
+                    </div>
+
+                    <div class="kpi-label">
+                        Faturamento de fretes
+                    </div>
+
+                    <div class="kpi-change positive">
+                        ↗ 12,3%
+                    </div>
+
+                </article>
+
+
+                <!-- MOTORISTAS -->
+
+                <article class="kpi-card" id="motoristas">
+
+                    <button class="kpi-more" aria-label="Mais opções">
+                        ···
+                    </button>
+
+                    <div class="kpi-icon icon-green">
+                        ♙
+                    </div>
+
+                    <div class="kpi-value">
+                        42
+                    </div>
+
+                    <div class="kpi-label">
+                        Motoristas cadastrados
+                    </div>
+
+                    <div class="kpi-change neutral">
+                        — Equipe ativa
+                    </div>
+
+                </article>
+
+
+                <!-- VEÍCULOS -->
+
+                <article class="kpi-card" id="veiculos">
+
+                    <button class="kpi-more" aria-label="Mais opções">
+                        ···
+                    </button>
+
+                    <div class="kpi-icon icon-purple">
+                        ✓
+                    </div>
+
+                    <div class="kpi-value">
+                        18
+                    </div>
+
+                    <div class="kpi-label">
+                        Veículos disponíveis
+                    </div>
+
+                    <div class="kpi-change negative">
+                        ↓ 3 em manutenção
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- ==================================
+                 GRÁFICOS E DESTAQUE
+            =================================== -->
+
+            <section class="analytics-grid">
+
+                <!-- GRÁFICO DE ROSCA -->
+
+                <article class="card">
+
+                    <div class="card-header">
+
+                        <h2>Situação das entregas</h2>
+
+                        <button class="card-menu" aria-label="Mais opções">
+                            ···
+                        </button>
+
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+
+                    <div class="legend">
+
+                        <div class="legend-item">
+                            <span
+                                class="legend-dot"
+                                style="background:#16294A"
+                            ></span>
+                            Concluídas
+                        </div>
+
+                        <div class="legend-item">
+                            <span
+                                class="legend-dot"
+                                style="background:#6C5CE7"
+                            ></span>
+                            Pendentes
+                        </div>
+
+                        <div class="legend-item">
+                            <span
+                                class="legend-dot"
+                                style="background:#329DDF"
+                            ></span>
+                            Em rota
+                        </div>
+
+                        <div class="legend-item">
+                            <span
+                                class="legend-dot"
+                                style="background:#B8C8E2"
+                            ></span>
+                            Atrasadas
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- GRÁFICO COMPARATIVO -->
+
+                <article class="card">
+
+                    <div class="card-header">
+
+                        <h2>Comparativo de entregas</h2>
+
+                        <button class="card-menu" aria-label="Mais opções">
+                            ···
+                        </button>
+
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+
+                    <div class="legend">
+
+                        <div class="legend-item">
+                            <span
+                                class="legend-dot"
+                                style="background:#16294A"
+                            ></span>
+                            Este mês
+                        </div>
+
+                        <div class="legend-item">
+                            <span
+                                class="legend-dot"
+                                style="background:#F4BD35"
+                            ></span>
+                            Mês anterior
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CARTÃO DE DESTAQUE -->
+
+                <article class="highlight-card">
+
+                    <div class="highlight-top">
+
+                        <button
+                            class="help-button"
+                            id="helpButton"
+                            aria-label="Informações"
+                        >
+                            ?
+                        </button>
+
+                    </div>
+
+                    <div class="highlight-content">
+
+                        <h2>
+                            Mais controle.
+                            <br>
+                            Mais eficiência.
+                        </h2>
+
+                        <p>
+                            Mantenha suas operações organizadas
+                            e acompanhe os indicadores da frota.
+                        </p>
+
+                        <button
+                            class="highlight-button"
+                            id="reportsButton"
+                        >
+                            Ver relatórios
+                        </button>
+
+                    </div>
+
+                    <div class="decorations" aria-hidden="true">
+
+                        <div class="decor-block"></div>
+                        <div class="decor-block"></div>
+                        <div class="decor-block"></div>
+                        <div class="decor-block"></div>
+                        <div class="decor-block"></div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- ==================================
+                 ALERTA DE DOCUMENTAÇÃO
+            =================================== -->
+
+            <section class="alert-strip" id="documentos">
+
+                <div class="alert-symbol">
+                    !
+                </div>
+
+                <div class="alert-text">
+
+                    <h3>
+                        Atenção: CNHs vencidas
+                    </h3>
+
+                    <p>
+                        Existem 5 motoristas com a Carteira Nacional
+                        de Habilitação vencida. Verifique a documentação
+                        antes de programar novas viagens.
+                    </p>
+
+                </div>
+
+                <button class="alert-button" id="driversAlertButton">
+                    Ver motoristas
+                </button>
+
+            </section>
+
+
+            <!-- ==================================
+                 RODAPÉ
+            =================================== -->
+
+            <footer style="
+                display:flex;
+                justify-content:space-between;
+                gap:15px;
+                flex-wrap:wrap;
+                margin-top:25px;
+                color:#929BAB;
+                font-size:10px;
+            ">
+
+                <span>
+                    © 2026 Runner Log — Sistema de Gestão de Transporte
+                </span>
+
+                <span>
+                    Painel administrativo
+                </span>
+
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- MENSAGEM DE FEEDBACK -->
+
+<div class="toast" id="toast" role="status"></div>
+
+
+<script>
+    /* ==========================================
+       MENSAGENS DO SISTEMA
+    ========================================== */
+
+    const toast = document.getElementById('toast');
+
+    let toastTimer;
+
+    function showToast(message) {
+
+        toast.textContent = message;
+        toast.classList.add('show');
+
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+
+    /* ==========================================
+       GRÁFICO DE SITUAÇÃO DAS ENTREGAS
+    ========================================== */
+
+    const statusChart = new Chart(
+        document.getElementById('statusChart'),
+        {
+            type: 'doughnut',
+
+            data: {
+                labels: [
+                    'Concluídas',
+                    'Pendentes',
+                    'Em rota',
+                    'Atrasadas'
+                ],
+
+                datasets: [{
+                    data: [165, 35, 25, 13],
+
+                    backgroundColor: [
+                        '#16294A',
+                        '#6C5CE7',
+                        '#329DDF',
+                        '#B8C8E2'
+                    ],
+
+                    borderWidth: 0,
+                    hoverOffset: 5
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                cutout: '55%',
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+                        backgroundColor: '#16294A',
+                        padding: 12,
+
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+
+    /* ==========================================
+       GRÁFICO DE COMPARAÇÃO MENSAL
+    ========================================== */
+
+    const comparisonChart = new Chart(
+        document.getElementById('comparisonChart'),
+        {
+            type: 'line',
+
+            data: {
+                labels: [
+                    '01/10',
+                    '06/10',
+                    '11/10',
+                    '16/10',
+                    '21/10',
+                    '26/10',
+                    '31/10'
+                ],
+
+                datasets: [
+
+                    {
+                        label: 'Este mês',
+
+                        data: [18, 32, 24, 38, 29, 44, 35],
+
+                        borderColor: '#16294A',
+                        backgroundColor: 'rgba(22, 41, 74, 0.10)',
+
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.42,
+
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    },
+
+                    {
+                        label: 'Mês anterior',
+
+                        data: [29, 35, 31, 42, 36, 28, 32],
+
+                        borderColor: '#F4BD35',
+                        backgroundColor: 'rgba(244, 189, 53, 0.16)',
+
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.42,
+
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }
+
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+                        backgroundColor: '#16294A',
+                        padding: 10
+                    }
+                },
+
+                scales: {
+
+                    x: {
+                        grid: {
+                            color: '#EDF0F4'
+                        },
+
+                        border: {
+                            display: false
+                        },
+
+                        ticks: {
+                            color: '#929BAB',
+                            font: {
+                                family: 'Inter',
+                                size: 9
+                            },
+                            maxRotation: 0
+                        }
+                    },
+
+                    y: {
+                        beginAtZero: true,
+
+                        grid: {
+                            color: '#EDF0F4'
+                        },
+
+                        border: {
+                            display: false
+                        },
+
+                        ticks: {
+                            color: '#929BAB',
+                            font: {
+                                family: 'Inter',
+                                size: 9
+                            },
+                            maxTicksLimit: 5
+                        }
+                    }
+
+                }
+            }
+        }
+    );
+
+
+    /* ==========================================
+       ALTERAR O PERÍODO DOS INDICADORES
+    ========================================== */
+
+    document.getElementById('periodSelect')
+        .addEventListener('change', function() {
+
+            const period = this.value;
+
+            if (period === '7') {
+
+                document.getElementById('requestsValue').textContent = '64';
+
+                showToast('Período selecionado: últimos 7 dias.');
+
+            } else if (period === '90') {
+
+                document.getElementById('requestsValue').textContent = '712';
+
+                showToast('Período selecionado: últimos 90 dias.');
+
+            } else {
+
+                document.getElementById('requestsValue').textContent = '238';
+
+                showToast('Período selecionado: últimos 30 dias.');
+            }
+        });
+
+
+    /* ==========================================
+       PESQUISA NO PAINEL
+    ========================================== */
+
+    document.getElementById('globalSearch')
+        .addEventListener('keydown', function(event) {
+
+            if (event.key === 'Enter') {
+
+                const query = this.value.trim();
+
+                if (query.length === 0) {
+
+                    showToast('Digite algo para pesquisar.');
+
+                } else {
+
+                    showToast(
+                        'Pesquisa demonstrativa: ' + query
+                    );
+                }
+            }
+        });
+
+
+    /* ==========================================
+       NOTIFICAÇÕES
+    ========================================== */
+
+    document.getElementById('notificationButton')
+        .addEventListener('click', function() {
+
+            showToast(
+                'Você tem um alerta importante: 5 CNHs vencidas.'
+            );
+        });
+
+
+    /* ==========================================
+       BOTÕES DE AÇÃO
+    ========================================== */
+
+    document.getElementById('supportButton')
+        .addEventListener('click', function() {
+
+            showToast(
+                'Central de suporte da Runner Log.'
+            );
+        });
+
+
+    document.getElementById('helpButton')
+        .addEventListener('click', function() {
+
+            showToast(
+                'Este painel reúne os principais indicadores operacionais.'
+            );
+        });
+
+
+    document.getElementById('reportsButton')
+        .addEventListener('click', function() {
+
+            showToast(
+                'A área de relatórios poderá ser integrada ao sistema.'
+            );
+        });
+
+
+    document.getElementById('driversAlertButton')
+        .addEventListener('click', function() {
+
+            showToast(
+                'Atenção: 5 motoristas precisam regularizar a CNH.'
+            );
+        });
+
+
+    /* ==========================================
+       MENU LATERAL
+    ========================================== */
+
+    document.querySelectorAll('.menu-link')
+        .forEach(function(link) {
+
+            link.addEventListener('click', function() {
+
+                document.querySelectorAll('.menu-link')
+                    .forEach(function(item) {
+                        item.classList.remove('active');
+                    });
+
+                this.classList.add('active');
+
+                const section = this.textContent.trim();
+
+                if (section !== 'Dashboard') {
+                    showToast(
+                        'Área selecionada: ' + section +
+                        '. A página poderá ser integrada ao sistema.'
+                    );
+                }
+            });
+        });
+
+</script>
+
+</body>
+</html>
